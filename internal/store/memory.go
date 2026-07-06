@@ -43,7 +43,7 @@ func (s *MemoryStore) GetJob(id string) (*models.Job, error) {
 
 	job, exists := s.jobs[id]
 	if !exists {
-		return nil, errors.New("job not found")
+		return nil, ErrNotFound
 	}
 
 	jobCopy := *job
@@ -74,7 +74,7 @@ func (s *MemoryStore) UpdateJob(job *models.Job) error {
 	defer s.mu.Unlock()
 
 	if _, exists := s.jobs[job.ID]; !exists {
-		return errors.New("job not found")
+		return ErrNotFound
 	}
 
 	jobCopy := *job

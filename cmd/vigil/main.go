@@ -1,12 +1,15 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
-	"log"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
+	"github.com/o0ga-bo0ga/vigil/internal/api"
+	"github.com/o0ga-bo0ga/vigil/internal/service"
+	"github.com/o0ga-bo0ga/vigil/internal/store"
 )
 
 func healthHandler(w http.ResponseWriter, r *http.Request){
@@ -30,6 +33,15 @@ func main(){
 	r := chi.NewRouter()
 
 	r.Get("/health", healthHandler)
+
+	s := store.NewMemoryStore()
+	svc := service.NewJobService(s)
+	h := api.NewHandler(svc)
+
+	r.Route("/api", func(r chi.Router) {
+		r.Post("/events", h.CreateEvent)
+		r.Get("/jobs", h.ListJobs)
+	})
 
 	log.Printf("Starting server on %s...", port)
 	if err := http.ListenAndServe(port, r); err != nil{
