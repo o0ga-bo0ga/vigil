@@ -34,7 +34,14 @@ func main(){
 
 	r.Get("/health", healthHandler)
 
-	s := store.NewMemoryStore()
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "vigil.db"
+	}
+	s, err := store.NewSQLiteStore(dbPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 	svc := service.NewJobService(s)
 	h := api.NewHandler(svc)
 
