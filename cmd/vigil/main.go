@@ -39,6 +39,7 @@ func main(){
 	h := api.NewHandler(svc)
 
 	r.Route("/api", func(r chi.Router) {
+		r.Use(api.AuthMiddleware)
 		r.Post("/events", h.CreateEvent)
 		r.Get("/jobs", h.ListJobs)
 	})

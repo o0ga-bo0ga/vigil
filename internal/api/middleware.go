@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"os"
 )
@@ -13,6 +14,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		if xApiKey == "" {
 			http.Error(w, "Missing api key", http.StatusUnauthorized)
+			return
+		}
+		if apiKey == "" {
+			http.Error(w, "Server Misconfigured: API_KEY not set", http.StatusInternalServerError)
 			return
 		}
 		if xApiKey != apiKey {
