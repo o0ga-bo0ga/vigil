@@ -43,6 +43,8 @@ func (s *JobService) CreateJob(req CreateJobRequest) (*models.Job, error) {
 		ID: id,
 		Name: req.Name,
 		Status: status,
+		Error: req.Error,
+		Duration: req.Duration,
 		Tenant: req.Tenant,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -56,8 +58,8 @@ func (s *JobService) GetJob(id string) (*models.Job, error) {
 	return s.store.GetJob(id)
 }
 
-func (s *JobService) ListJobs(tenant string) ([]*models.Job, error) {
-	return s.store.ListJobs(tenant)
+func (s *JobService) ListJobs(filter store.ListJobsFilter) ([]*models.Job, error) {
+	return s.store.ListJobs(filter)
 }
 
 func (s *JobService) UpdateJob(req UpdateJobRequest) error {
@@ -72,4 +74,8 @@ func (s *JobService) UpdateJob(req UpdateJobRequest) error {
 	job.Duration = req.Duration
 	job.UpdatedAt = time.Now()
 	return s.store.UpdateJob(job)
+}
+
+func (s *JobService) GetStats(tenant string) (*store.Stats, error) {
+	return s.store.GetStats(tenant)
 }

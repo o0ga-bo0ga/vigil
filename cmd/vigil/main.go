@@ -49,6 +49,7 @@ func main(){
 		r.Use(api.AuthMiddleware)
 		r.Post("/events", h.CreateEvent)
 		r.Get("/jobs", h.ListJobs)
+		r.Get("/stats", h.GetStats)
 	})
 
 	log.Printf("Starting server on %s...", port)

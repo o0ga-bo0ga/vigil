@@ -50,24 +50,28 @@ func (s *MemoryStore) GetJob(id string) (*models.Job, error) {
 	return &jobCopy, nil
 }
 
-func (s *MemoryStore) ListJobs(tenant string) ([]*models.Job, error) {
+func (s *MemoryStore) ListJobs(filter ListJobsFilter) ([]*models.Job, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var tenantJobs []*models.Job
+	var filteredJobs []*models.Job
 	for _, job := range s.jobs {
-		if tenant == "" || job.Tenant == tenant {
+		if (filter.Tenant == "" || job.Tenant == filter.Tenant) &&
+		   (filter.Status == "" || job.Status == models.Status(filter.Status)) {
 			jobCopy := *job
-			tenantJobs = append(tenantJobs, &jobCopy)
+			filteredJobs = append(filteredJobs, &jobCopy)
 		}
 	}
+	if filter.Limit > 0 && len(filteredJobs) > filter.Limit {
+		filteredJobs = filteredJobs[:filter.Limit]
+	}
 
-	return tenantJobs, nil
+	return filteredJobs, nil
 }
 
 func (s *MemoryStore) UpdateJob(job *models.Job) error {
 	if job == nil || job.ID == "" {
-		return errors.New("Invalid Job ID")
+		return errors.New("invalid job ID")
 	}
 
 	s.mu.Lock()
@@ -80,4 +84,37 @@ func (s *MemoryStore) UpdateJob(job *models.Job) error {
 	jobCopy := *job
 	s.jobs[job.ID] = &jobCopy
 	return nil
+}
+
+func (s *MemoryStore) GetStats(tenant string) (*Stats, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var duration int64
+	
+	var stats Stats
+
+	for _, job := range s.jobs {
+		if tenant != "" && job.Tenant != tenant {
+			continue
+		}
+		stats.Total++
+		if job.Status == models.StatusSucceeded {
+			stats.Succeeded++
+		} else if job.Status == models.StatusFailed {
+			stats.Failed++
+		} else if job.Status == models.StatusRetried {
+			stats.Retried++
+		} else if job.Status == models.StatusStarted {
+			stats.Started++
+		}
+		duration += job.Duration
+	}
+	if stats.Total > 0 {
+		stats.AvgDuration = float64(duration)/float64(stats.Total)
+	} else {
+		stats.AvgDuration = 0
+	}
+
+	return &stats, nil
 }
