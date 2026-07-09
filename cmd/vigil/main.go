@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/o0ga-bo0ga/vigil/internal/api"
 	"github.com/o0ga-bo0ga/vigil/internal/service"
+	"github.com/o0ga-bo0ga/vigil/internal/static"
 	"github.com/o0ga-bo0ga/vigil/internal/store"
 )
 
@@ -44,6 +45,15 @@ func main(){
 	}
 	svc := service.NewJobService(s)
 	h := api.NewHandler(svc)
+
+	r.Handle("/static/*",
+				http.StripPrefix("/static/",
+								http.FileServer(http.FS(static.Files))))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		data, _ := static.Files.ReadFile("index.html")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write(data)
+	})
 
 	r.Route("/api", func(r chi.Router) {
 		r.Use(api.AuthMiddleware)
