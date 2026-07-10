@@ -12,12 +12,12 @@ const (
 )
 
 type Job struct {
-	ID        string
-	Name      string
-	Status    Status
-	Error     string
-	Duration  int64
-	Tenant    string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Status    Status    `json:"status"`
+	Error     string    `json:"error"`
+	Duration  int64     `json:"duration"`
+	Tenant    string    `json:"tenant"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
