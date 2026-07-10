@@ -91,7 +91,7 @@ func (s *SQLiteStore) GetJob(id string) (*models.Job, error) {
 }
 
 func (s *SQLiteStore) ListJobs(filter ListJobsFilter) ([]*models.Job, error) {
-	var jobs []*models.Job
+	jobs := make([]*models.Job, 0)
 	var rows *sql.Rows
 	var err error
 	query := `select id, name, status, error, duration, tenant, created_at, updated_at from jobs`
@@ -168,10 +168,10 @@ func (s *SQLiteStore) GetStats(tenant string) (*Stats, error) {
 	var args []interface{}
 	query := `select 
 				count(*) as Total, 
-				sum(status = 'succeeded') as Succeeded,
-				sum(status = 'failed') as Failed,
-				sum(status = 'retried') as Retried,
-				sum(status = 'started') as Started,
+				coalesce(sum(status = 'succeeded'), 0) as Succeeded,
+				coalesce(sum(status = 'failed'), 0) as Failed,
+				coalesce(sum(status = 'retried'), 0) as Retried,
+				coalesce(sum(status = 'started'), 0) as Started,
 				coalesce(avg(duration), 0) as AvgDuration
 				from jobs`
 	if tenant != "" {

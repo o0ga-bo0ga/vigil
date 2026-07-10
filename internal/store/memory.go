@@ -54,7 +54,7 @@ func (s *MemoryStore) ListJobs(filter ListJobsFilter) ([]*models.Job, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var filteredJobs []*models.Job
+	filteredJobs := make([]*models.Job, 0)
 	for _, job := range s.jobs {
 		if (filter.Tenant == "" || job.Tenant == filter.Tenant) &&
 		   (filter.Status == "" || job.Status == models.Status(filter.Status)) {
