@@ -62,3 +62,47 @@ body{
 .table tbody tr:hover {
     background-color: #16213e;
 }
+
+.stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+
+.stat-card {
+    flex: 1;
+    background-color: #16213e;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-card__value {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.stat-card__label {
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: center;
+}
+
+.filter-bar select,
+.filter-bar input {
+    background-color: #16213e;
+    color: blanchedalmond;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+}

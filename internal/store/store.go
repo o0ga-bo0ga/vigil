@@ -21,12 +21,12 @@ type ListJobsFilter struct {
 }
 
 type Stats struct {
-	Total       int
-	Succeeded   int
-	Failed      int
-	Retried     int
-	Started     int
-	AvgDuration float64
+	Total       int     `json:"total"`
+	Succeeded   int     `json:"succeeded"`
+	Failed      int     `json:"failed"`
+	Retried     int     `json:"retried"`
+	Started     int     `json:"started"`
+	AvgDuration float64 `json:"avgDuration"`
 }
 
 var (
