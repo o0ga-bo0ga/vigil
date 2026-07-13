@@ -106,3 +106,12 @@ body{
     padding: 8px 12px;
     font-size: 14px;
 }
+
+@keyframes flash-highlight {
+    0%   { background-color: rgba(59, 130, 246, 0.3); }
+    100% { background-color: transparent; }
+}
+
+.job-row--new {
+    animation: flash-highlight 1.5s ease-out;
+}

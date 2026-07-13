@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -11,10 +12,11 @@ import (
 
 type Handler struct {
 	service *service.JobService
+	hub     *Hub
 }
 
-func NewHandler(service *service.JobService) *Handler {
-	return &Handler{service: service}
+func NewHandler(service *service.JobService, hub *Hub) *Handler {
+	return &Handler{service: service, hub: hub}
 }
 
 func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +43,13 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(job); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
+
+	jsonJob, err := json.Marshal(job)
+	if err != nil {
+		log.Println("Failed to marshal job for broadcast: ", err)
+	} else {
+		h.hub.Broadcast(jsonJob)
 	}
 }
 

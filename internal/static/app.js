@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderStats(apiKey);
     await renderJobs(apiKey);
 
+    connectWebSocket(apiKey);
+
     const statusSelect = document.getElementById('status-filter');
     const tenantInput = document.getElementById('tenant-filter');
 
@@ -135,5 +137,45 @@ function renderFilters() {
             <input id="tenant-filter" type="text" placeholder="Filter by tenant...">
         </div>`;
     document.getElementById('filters').innerHTML = html;
+}
+
+function connectWebSocket(apiKey) {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${location.host}/ws?apiKey=${apiKey}`);
+
+    ws.onmessage = (event) => {
+        const job = JSON.parse(event.data);
+        prependJobRow(job);
+        renderStats(apiKey);
+    };
+
+    ws.onclose = () => {
+        setTimeout(() => connectWebSocket(apiKey), 3000);
+    };
+
+    ws.onerror = (err) => {
+        console.error('WebSocket error:', err);
+    };
+}
+
+function prependJobRow(job) {
+    const tbody = document.querySelector('#jobs tbody');
+    if (!tbody) return;
+
+    const tr = document.createElement('tr');
+    tr.className = 'job-row--new';
+    tr.innerHTML = `
+    <td>${job.name}</td>
+    <td><span class="status-badge status-badge--${job.status}">${job.status}</span></td>
+    <td>${formatDuration(job.duration)}</td>
+    <td>${new Date(job.created_at).toLocaleString()}</td>
+    <td title="${job.error || ''}">${truncate(job.error, 50)}</td>`;
+
+    tbody.prepend(tr);
+
+    tr.addEventListener('animationend', () => {
+        tr.classList.remove('job-row--new');
+    });
+
 }
 

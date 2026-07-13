@@ -43,12 +43,18 @@ func main(){
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	hub := api.NewHub()
+	go hub.Run()
 	svc := service.NewJobService(s)
-	h := api.NewHandler(svc)
+	h := api.NewHandler(svc, hub)
 
 	r.Handle("/static/*",
 				http.StripPrefix("/static/",
 								http.FileServer(http.FS(static.Files))))
+
+	r.Get("/ws", hub.HandleWebSocket)
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data, _ := static.Files.ReadFile("index.html")
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
